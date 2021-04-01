@@ -4,13 +4,45 @@ const router = Router();
 const mysqlConnection = require('../database');
 
 
-// --------- peticiones get para cada una de las consultas a mysql
+// --------- ruta para la carga de la tabla temporal en la base de datos
 router.get('/cargarTemporal',(req,res)=>{
     crearTemporal();
-    res.json({"Title":"Carga masiva terminada"});
+    res.json({"Titulo":"Creacion de la tabla temporal"});
 });
 
 
+// --------------- ruta para hacer la carga de los datos en el modelo de la base de datos
+router.get('/cargarModelo',(req,res)=>{
+    crearBaseDatos();
+    cargarModelo();
+    res.json({"Titulo":"Cargando datos en la Base de Datos..............."});
+});
+
+
+//------------------ ruta para elimincion de la tabla temporal de la base de datos
+router.get('/eliminarTemporal',(req,res)=>{
+    let consultaEliminarTemporal = "DROP TABLE IF EXISTS Temporal;";
+    mysqlConnection.query(consultaEliminarTemporal,function(error,resultado){
+        if(error){
+            console.log(error);
+            return;
+        }
+        else{
+            console.log("Tabla temporal eliminada")
+            res.json({"Titulo":"Tabla temporal eliminada"});
+        }
+    });
+});
+
+
+// ------------ ruta para eliminacion de las tablas de las tablas de la base de datos
+router.get('/eliminarModelo',(req,res)=>{
+    eliminarModelo();
+    res.json({"Titulo":"Eliminando Tablas del la base de datos...................."});
+});
+
+
+// ------------------------------ CONSULTAS A LA BASE DE DATOS ----------------------------------
 // consulta 1
 router.get('/consulta1',(req,res)=>{
     mysqlConnection.query(consultaHospitales(),function(error,resultado){
@@ -163,7 +195,150 @@ router.get('/cargarTemporal',(req,res)=>{
 });
 
 
-// metodo para 
+// meotod para eliminar el modelo de la base de datos
+function eliminarModelo() {
+    console.log("----->ELIMINADO MODELO DE LA BASE DE DATOS<------");
+    let tabla_detalle_contacto = "DROP TABLE IF EXISTS detalle_contacto;";
+    mysqlConnection.query(tabla_detalle_contacto,function(error,resultado){
+        if(error){
+            console.log(error);
+            return;
+        }
+        else{
+            console.log("Tabla de los detalles de los encuentros eliminada");
+        }
+    });
+
+    let tabla_encuentro = "DROP TABLE IF EXISTS encuentro;";
+    mysqlConnection.query(tabla_encuentro,function(error,resultado){
+        if(error){
+            console.log(error);
+            return;
+        }
+        else{
+            console.log("Tabla de los encuentros eliminada");
+        }
+    });
+
+    let tabla_conocido = "DROP TABLE IF EXISTS conocido;";
+    mysqlConnection.query(tabla_conocido,function(error,resultado){
+        if(error){
+            console.log(error);
+            return;
+        }
+        else{
+            console.log("Tabla de conocidos eliminada");
+        }
+    });
+
+
+        
+
+    let tabla_tratamiento_paciente = "DROP TABLE IF EXISTS tratamiento_paciente;";
+    mysqlConnection.query(tabla_tratamiento_paciente,function(error,resultado){
+        if(error){
+            console.log(error);
+            return;
+        }
+        else{
+            console.log("Tabla de tratamientos de los pacientes eliminada");
+        }
+    });
+
+    let tabla_tipo_tratamiento = "DROP TABLE IF EXISTS tipo_tratamiento;";
+    mysqlConnection.query(tabla_tipo_tratamiento,function(error,resultado){
+        if(error){
+            console.log(error);
+            return;
+        }
+        else{
+            console.log("Tabla de los tipos de tratamientos eliminada");
+        }
+    });
+
+
+    let tabla_ubicacion = "DROP TABLE IF EXISTS ubicacion; ";
+    mysqlConnection.query(tabla_ubicacion,function(error,resultado){
+        if(error){
+            console.log(error);
+            return;
+        }
+        else{
+            console.log("Tabla ubicacion de los pacientes eliminada");
+        }
+    });
+
+
+    let tabla_registro_hospital = "DROP TABLE IF EXISTS registro_hospital; ";
+    mysqlConnection.query(tabla_registro_hospital,function(error,resultado){
+        if(error){
+            console.log(error);
+            return;
+        }
+        else{
+            console.log("Tabla registros de hospitales eliminada");
+        }
+    });
+
+
+
+    let tabla_paciente = "DROP TABLE IF EXISTS paciente;"
+    mysqlConnection.query(tabla_paciente,function(error,resultado){
+        if(error){
+            console.log(error);
+            return;
+        }
+        else{
+            console.log("Tabla de los pacientes eliminada");
+        }
+    });
+   
+    
+
+
+    
+    let tabla_estado_paciente = "DROP TABLE IF EXISTS estado_paciente;";
+    mysqlConnection.query(tabla_estado_paciente,function(error,resultado){
+        if(error){
+            console.log(error);
+            return;
+        }
+        else{
+            console.log("Tabla de los estados de los pacientes eliminada");
+        }
+    });
+
+
+    
+
+
+    let tabla_hospital = "DROP TABLE IF EXISTS hospital; ";
+    mysqlConnection.query(tabla_hospital,function(error,resultado){
+        if(error){
+            console.log(error);
+            return;
+        }
+        else{
+            console.log("Tabla hospital eliminada");
+        }
+    });
+
+
+    let tabla_ubicacion_hospital = "DROP TABLE IF EXISTS ubicacion_hospital;";
+    mysqlConnection.query(tabla_ubicacion_hospital,function(error,resultado){
+        if(error){
+            console.log(error);
+            return;
+        }
+        else{
+            console.log("Tabla ubicacion hospital eliminada \n-->TABLAS ELIMINADAS DE LA BASE DE DATOS<---");
+        }
+    });
+
+    
+}
+
+// metodo para crear una tabla temporal en la base de datos
 function crearTemporal()
 {
     // creacion de tabla temporal
@@ -200,11 +375,12 @@ function crearTemporal()
             return;
         }
         else{    
-            console.log("tabla temporal creada");
+            console.log("Tabla temporal creada");
         }
     });
 
-    // carga de datos en la tabla temporal
+
+    // ------ carga de datos en la tabla temporal
     let cargaDatos = "LOAD DATA LOCAL INFILE '/home/hector/Documentos/MIA/datos.csv'\
     into table Temporal\
     character set utf8mb4\
@@ -225,17 +401,324 @@ function crearTemporal()
     fecha_fin_tratamiento = STR_TO_DATE (@fecha_fin_tratamiento, '%Y-%m-%d %H:%i:%s');\
     ";
 
-    mysqlConnection.query(cargaDatos,function(error,rows,fields){
+    mysqlConnection.query(cargaDatos,function(error,result){
         if(error){
             console.log(error);
             return;
         }
         else{
-            console.log("Datos cargados");
+            console.log("Datos cargados a tabla temporal\n--->FIN DE LA CARGA PARA LA TABLA TEMPORAL<---");
         }
     });
 }
 
+
+function crearBaseDatos() {
+    // crear la la base de datos y sus tablas
+    let baseDatos = "CREATE TABLE ubicacion_hospital(\
+        id_ubicacion_hospital INT NOT NULL AUTO_INCREMENT PRIMARY KEY,\
+        nombre_ubicacion_hospital VARCHAR(75) NOT NULL\
+    );\
+    CREATE TABLE hospital(\
+        id_hospital INT NOT NULL AUTO_INCREMENT,\
+        nombre_hospital VARCHAR(75) NOT NULL,\
+        id_ubicacion_hospital INT NOT NULL,\
+        PRIMARY KEY(id_hospital,id_ubicacion_hospital),\
+        FOREIGN KEY(id_ubicacion_hospital) REFERENCES ubicacion_hospital(id_ubicacion_hospital)\
+    );\
+    CREATE TABLE estado_paciente(\
+        id_estado_paciente INT NOT NULL AUTO_INCREMENT PRIMARY KEY,\
+        nombre_estado VARCHAR(75)\
+    );\
+    CREATE TABLE paciente(\
+        id_paciente INT NOT NULL AUTO_INCREMENT PRIMARY KEY,\
+        nombre_paciente VARCHAR(75) NOT NULL,\
+        apellido_paciente VARCHAR(75) NOT NULL,\
+        direccion_paciente VARCHAR(75) NOT NULL,\
+        fecha_muerte DATETIME NULL,\
+        estado_paciente VARCHAR(75) NOT NULL\
+    );\
+    CREATE TABLE tipo_tratamiento(\
+        id_tipo_tratamiento INT NOT NULL AUTO_INCREMENT PRIMARY KEY,\
+        nombre_tratamiento VARCHAR(75),\
+        efectividad_tratamiento INT\
+    );\
+    CREATE TABLE tratamiento_paciente(\
+        id_tratamiento_paciente INT NOT NULL AUTO_INCREMENT,\
+        efectividad INT NOT NULL,\
+        inicio_tratamiento DATETIME NOT NULL,\
+        fin_tratamiento DATETIME NOT NULL,\
+        id_paciente INT NOT NULL,\
+        id_tipo_tratamiento INT NOT NULL,\
+        PRIMARY KEY(id_tratamiento_paciente,id_paciente,id_tipo_tratamiento),\
+        FOREIGN KEY(id_paciente) REFERENCES paciente(id_paciente),\
+        FOREIGN KEY(id_tipo_tratamiento) REFERENCES tipo_tratamiento(id_tipo_tratamiento)\
+    );\
+    CREATE TABLE registro_hospital(\
+        id_registro_hospital INT NOT NULL AUTO_INCREMENT,\
+        fecha_registro DATETIME NOT NULL,\
+        fecha_confirmacion DATETIME NOT NULL,\
+        fecha_muerte DATETIME NULL,\
+        id_hospital INT NOT NULL,\
+        id_paciente INT NOT NULL,\
+        id_estado_paciente INT NOT NULL,\
+        PRIMARY KEY(id_registro_hospital,id_hospital,id_paciente,id_estado_paciente),\
+        FOREIGN KEY(id_hospital) REFERENCES hospital(id_hospital),\
+        FOREIGN KEY(id_paciente) REFERENCES paciente(id_paciente),\
+        FOREIGN KEY(id_estado_paciente) REFERENCES estado_paciente(id_estado_paciente)\
+    );\
+    CREATE TABLE ubicacion(\
+        id_ubicacion INT NOT NULL AUTO_INCREMENT,\
+        direccion_ubicacion VARCHAR(75) NOT NULL,\
+        hora_llegada DATETIME NOT NULL,\
+        hora_salida DATETIME NOT NULL,\
+        id_registro_hospital INT NOT NULL,\
+        PRIMARY KEY(id_ubicacion,id_registro_hospital),\
+        FOREIGN KEY(id_registro_hospital) REFERENCES registro_hospital(id_registro_hospital)\
+    );\
+    CREATE TABLE conocido(\
+        id_conocido INT NOT NULL AUTO_INCREMENT PRIMARY KEY,\
+        nombre_conocido VARCHAR(75) NOT NULL,\
+        apellido_conocido VARCHAR(75) NOT NULL\
+    );\
+    CREATE TABLE encuentro(\
+        id_encuentro INT NOT NULL AUTO_INCREMENT,\
+        id_conocido INT NOT NULL,\
+        id_paciente INT NOT NULL,\
+        PRIMARY KEY(id_encuentro,id_conocido,id_paciente),\
+        FOREIGN KEY(id_conocido) REFERENCES conocido(id_conocido),\
+        FOREIGN KEY(id_paciente) REFERENCES paciente(id_paciente)\
+    );\
+    CREATE TABLE detalle_contacto(\
+        id_detalle_encuentro INT NOT NULL AUTO_INCREMENT,\
+        tipo_encuentro VARCHAR(75),\
+        fecha_encuentro DATETIME NOT NULL,\
+        inicio_encuentro DATETIME NOT NULL,\
+        fin_encuentro DATETIME NOT NULL,\
+        id_encuentro INT NOT NULL,\
+        PRIMARY KEY(id_detalle_encuentro,id_encuentro),\
+        FOREIGN KEY(id_encuentro) REFERENCES encuentro(id_encuentro)\
+    );";
+    mysqlConnection.query(baseDatos,function(error,result){
+        if(error){
+            console.log(error);
+            return;
+        }
+        else{
+            console.log("BASE DE DATOS CREADA......");
+        }
+    });
+}
+
+// cargar datos a la base de datos
+function cargarModelo() {
+    
+    // creacion de filtros para cargar los datos a sus respectivas tablas
+    // carga de datos de ubicaciones de hospitales
+    let ubicacionesHospitales = "INSERT INTO ubicacion_hospital (nombre_ubicacion_hospital)\
+    SELECT DISTINCT Temporal.direccion_hospital FROM Temporal WHERE direccion_hospital IS NOT NULL AND direccion_hospital != '';\
+    ";
+
+    mysqlConnection.query(ubicacionesHospitales,function(error,result){
+        if(error){
+            console.log(error);
+            return;
+        }
+        else{
+            console.log("Ubicaciones de hospitales cargados");
+        }
+    });
+
+    
+    /* consulta para agregar todos los tipos de tratamientos */
+    let tiposTratamientos= "insert into tipo_tratamiento(nombre_tratamiento,efectividad_tratamiento)\
+    select distinct Temporal.tratamiento, Temporal.efectividad\
+    from Temporal\
+    where tratamiento is not null and tratamiento != '';";
+
+    mysqlConnection.query(tiposTratamientos,function(error,result){
+        if(error){
+            console.log(error);
+            return;
+        }
+        else{
+            console.log("Tipos de tratamientos cargados");
+        }
+    });
+
+
+    /* consulta para pacientes */
+    let pacientes = "insert into paciente(nombre_paciente,apellido_paciente,direccion_paciente,fecha_muerte,estado_paciente)\
+    select distinct Temporal.nombre_paciente, Temporal.apellido_paciente, Temporal.direccion_paciente, Temporal.fecha_muerte, Temporal.estado_paciente\
+    from Temporal\
+    where nombre_paciente != '' and apellido_paciente != '' and direccion_paciente != '';";
+    mysqlConnection.query(pacientes,function(error,result){
+        if(error){
+            console.log(error);
+            return;
+        }
+        else{
+            console.log("Pacientes cargados");
+        }
+    });
+
+
+    /*  insertar los conocidos en la base de datos */
+    let conocidos = "insert into conocido (nombre_conocido,apellido_conocido)\
+    select distinct Temporal.nombre_asociado, Temporal.apellido_asociado\
+    from Temporal\
+    where nombre_asociado != '' and apellido_asociado != '';";
+    mysqlConnection.query(conocidos,function(error,result){
+        if(error){
+            console.log(error);
+            return;
+        }
+        else{
+            console.log("conocidos cargados");
+        }
+    });
+
+
+    /* filtro para insertar los pacientes con sus tratamientos  */
+    let pacienteTratamiento = "insert into tratamiento_paciente(efectividad, inicio_tratamiento, fin_tratamiento, id_paciente, id_tipo_tratamiento)\
+    SELECT DISTINCT Temporal.efectividad_en_paciente, Temporal.fecha_inicio_tratamiento, Temporal.fecha_fin_tratamiento, paciente.id_paciente, tipo_tratamiento.id_tipo_tratamiento\
+    FROM Temporal\
+    INNER JOIN paciente ON Temporal.direccion_paciente = paciente.direccion_paciente AND Temporal.nombre_paciente = paciente.nombre_paciente AND Temporal.apellido_paciente = paciente.apellido_paciente\
+    INNER JOIN tipo_tratamiento ON Temporal.tratamiento = tipo_tratamiento.nombre_tratamiento;";
+    mysqlConnection.query(pacienteTratamiento,function(error,result){
+        if(error){
+            console.log(error);
+            return;
+        }
+        else{
+            console.log("Tratamiento de los pacientes cargados");
+        }
+    });
+
+
+    /* filtro para gregar todoso los hospitales a al base de datos */
+    let hospitales = "insert into hospital(nombre_hospital, id_ubicacion_hospital)\
+    select distinct Temporal.nombre_hospital, ubicacion_hospital.id_ubicacion_hospital\
+    from Temporal\
+    inner join ubicacion_hospital on Temporal.direccion_hospital = ubicacion_hospital.nombre_ubicacion_hospital;";
+    mysqlConnection.query(hospitales,function(error,result){
+        if(error){
+            console.log(error);
+            return;
+        }
+        else{
+            console.log("hospitales cargados");
+        }
+    });
+
+    /* filtro para agregar todos lo tipo de estados existentes en los pacintes  */
+    let estadoPacientes = "insert into estado_paciente(nombre_estado)\
+    select distinct Temporal.estado_paciente \
+    from Temporal\
+    where Temporal.estado_paciente != '' and Temporal.estado_paciente is not null;";
+    mysqlConnection.query(estadoPacientes,function(error,result){
+        if(error){
+            console.log(error);
+            return;
+        }
+        else{
+            console.log("Estado de los pacientes cargardos");
+        }
+    });
+
+
+    /*   filtro par el registro de pacientes en hospitales    */
+    let registroPacientes = "insert into registro_hospital(fecha_registro,fecha_confirmacion,fecha_muerte,id_hospital,id_paciente,id_estado_paciente)\
+    select distinct Temporal.fecha_primera_sospecha AS fechaRegistro, Temporal.fecha_confirmacion AS fechaConfirmacion, Temporal.fecha_muerte AS fechaMuerte,\
+    PRUEBA.idH AS idHospitalAg, paciente.id_paciente AS idVictimaAg,\
+    estado_paciente.id_estado_paciente\
+    FROM Temporal\
+    INNER JOIN paciente ON paciente.nombre_paciente = Temporal.nombre_paciente AND paciente.apellido_paciente = Temporal.apellido_paciente\
+    inner join estado_paciente on estado_paciente.nombre_estado = Temporal.estado_paciente\
+    INNER JOIN (\
+    SELECT hospital.id_hospital AS idH, ubicacion_hospital.id_ubicacion_hospital AS idUbi, ubicacion_hospital.nombre_ubicacion_hospital AS ubi, hospital.nombre_hospital AS nomH \
+    FROM hospital\
+    INNER JOIN ubicacion_hospital ON hospital.id_ubicacion_hospital = ubicacion_hospital.id_ubicacion_hospital\
+    )PRUEBA ON Temporal.nombre_hospital = nomH AND Temporal.direccion_hospital = ubi;";
+    mysqlConnection.query(registroPacientes,function(error,result){
+        if(error){
+            console.log(error);
+            return;
+        }
+        else{
+            console.log("Paciente registrados en hospitales");
+        }
+    });
+
+
+
+    /*  ubicaciones de los pacientes  */
+    let ubicacionesPacientes = "insert into ubicacion (direccion_ubicacion,hora_llegada,hora_salida,id_registro_hospital)\
+    select distinct Temporal.ubicacion_paciente,Temporal.fecha_llegada, Temporal.fecha_retiro, PRUEBA.idRegistro\
+    from Temporal\
+    inner join(\
+    select registro_hospital.id_registro_hospital as idRegistro , paciente.nombre_paciente as nombreP, paciente.apellido_paciente as apellidoP, paciente.direccion_paciente as direccionP\
+    from registro_hospital\
+    inner join paciente on paciente.id_paciente = registro_hospital.id_paciente\
+    )PRUEBA where Temporal.nombre_paciente = PRUEBA.nombreP and Temporal.apellido_paciente = PRUEBA.apellidoP and Temporal.direccion_paciente = PRUEBA.direccionP and Temporal.ubicacion_paciente != ''";
+    mysqlConnection.query(ubicacionesPacientes,function(error,result){
+        if(error){
+            console.log(error);
+            return;
+        }
+        else{
+            console.log("ubicaciones de los pacientes cargados");
+        }
+    });
+
+
+    /*   tabla pare registar personas con conocidos   */
+    let conocidosPorPaciente = "insert into encuentro(id_conocido,id_paciente)\
+    select conocido.id_conocido, PACIENTE.id_paciente\
+    from conocido\
+    inner join(\
+    select paciente.id_paciente as id_Paciente, paciente.nombre_paciente as name_paciente,CONOCIDO.nameA as nAsociado, CONOCIDO.lastA as lAsociado\
+    from paciente\
+    inner join(\
+    select distinct Temporal.nombre_paciente as nameP, Temporal.apellido_paciente as lastP\
+    ,Temporal.nombre_asociado as nameA, Temporal.apellido_asociado as lastA, Temporal.fecha_conocido as fecha\
+    from Temporal\
+    where Temporal.nombre_paciente != '' and Temporal.nombre_asociado != '')CONOCIDO on paciente.nombre_paciente = CONOCIDO.nameP and paciente.apellido_paciente = CONOCIDO.lastP) PACIENTE on conocido.nombre_conocido = PACIENTE.nAsociado and conocido.apellido_conocido = PACIENTE.lAsociado;";
+    mysqlConnection.query(conocidosPorPaciente,function(error,result){
+        if(error){
+            console.log(error);
+            return;
+        }
+        else{
+            console.log("registro de los conocidos de los pacinetes");
+        }
+    });
+
+
+    /*   registrar los detalles del encuentro    */
+    let detallesEncuentro = "insert into detalle_contacto(tipo_encuentro, fecha_encuentro, inicio_encuentro, fin_encuentro, id_encuentro)\
+    select distinct Temporal.contacto_fisico, Temporal.fecha_conocido, Temporal.fecha_inicio_contacto, Temporal.fecha_fin_encuentro, ENCUENTRO.idEncuentro\
+    from Temporal\
+    inner join(\
+    select encuentro.id_encuentro as idEncuentro\
+    ,paciente.nombre_paciente as nombrePaciente, paciente.apellido_paciente as apellidoPaciente, paciente.direccion_paciente as direccionPaciente\
+    ,conocido.nombre_conocido as nombreConocido, conocido.apellido_conocido as apellidoConocido \
+    from encuentro\
+    inner join paciente on encuentro.id_paciente = paciente.id_paciente\
+    inner join conocido on encuentro.id_conocido = conocido.id_conocido\
+    )ENCUENTRO on Temporal.nombre_paciente = ENCUENTRO.nombrePaciente and Temporal.apellido_paciente = ENCUENTRO.apellidoPaciente\
+    and Temporal.nombre_asociado = ENCUENTRO.nombreConocido and Temporal.apellido_asociado = ENCUENTRO.apellidoConocido \
+    and Temporal.contacto_fisico != ''; ";
+    mysqlConnection.query(detallesEncuentro,function(error,result){
+        if(error){
+            console.log(error);
+            return;
+        }
+        else{
+            console.log("detalle de encuentros de los pacientes cargados\n-->CARGA DE MODELO FINALIZADA<--");
+        }
+    });
+}
 
 
 
