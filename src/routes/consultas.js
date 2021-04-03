@@ -910,11 +910,11 @@ function consulta9() {
 /* Consulta 10   mostar el porcentaje del contatacto fisico mas comun de cada hospital de la siguiente manera
 nombre hospita, nombre del contacto fisico, porcentaje de victimas*/
 function consulta10() {
-    let consulta = "select detalle_contacto.tipo_encuentro, count(detalle_contacto.tipo_encuentro) as total\
+    let consulta = "select detalle_contacto.tipo_encuentro, (count(detalle_contacto.tipo_encuentro) / (select count(*) from detalle_contacto) ) * 100 as total\
     from detalle_contacto\
     group by detalle_contacto.tipo_encuentro\
     order by total desc \
-    limit 1";
+    ;";
     return consulta;
 }
 
