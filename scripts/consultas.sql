@@ -124,7 +124,8 @@ from ubicacion
 )REGISTRO_HOSPITAL on ubicacion.id_registro_hospital = REGISTRO_HOSPITAL.registro_hospital and ubicacion.direccion_ubicacion = '1987 Delphine Well';
 
 
-/*  consulta 7    */
+/*  consulta 7  nombre, apellido, direccion que tiene menos de 2 allegado los
+cuales hayan estado en un hospital y que se le hayan aplicado dos tratamientos */
 select 
 paciente.id_paciente,
 paciente.nombre_paciente,
@@ -134,8 +135,8 @@ count(encuentro.id_paciente) as conocidos,
 count(tratamiento_paciente.id_paciente) as tratamientos
 from paciente
 inner join encuentro on paciente.id_paciente = encuentro.id_paciente
-inner join conocido on encuentro.id_conocido = conocido.id_conocido
-inner join tratamiento_paciente on paciente.id_paciente = tratamiento_paciente.id_paciente
+inner join conocido on encuentro.id_conocido = conocido.id_conocido and (conocido.nombre_conocido = paciente.nombre_paciente and conocido.apellido_conocido = apellido_paciente) 
+inner join tratamiento_paciente on paciente.id_paciente = tratamiento_paciente.id_paciente 
 group by paciente.id_paciente
 having conocidos < 2
 

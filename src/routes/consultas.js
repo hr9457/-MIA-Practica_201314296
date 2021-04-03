@@ -850,7 +850,7 @@ function consulta7() {
     count(tratamiento_paciente.id_paciente) as tratamientos\
     from paciente\
     inner join encuentro on paciente.id_paciente = encuentro.id_paciente\
-    inner join conocido on encuentro.id_conocido = conocido.id_conocido\
+    inner join conocido on encuentro.id_conocido = conocido.id_conocido and (conocido.nombre_conocido = paciente.nombre_paciente and conocido.apellido_conocido = apellido_paciente)\
     inner join tratamiento_paciente on paciente.id_paciente = tratamiento_paciente.id_paciente\
     group by paciente.id_paciente\
     having conocidos < 2;";
