@@ -126,19 +126,20 @@ from ubicacion
 
 /*  consulta 7  nombre, apellido, direccion que tiene menos de 2 allegado los
 cuales hayan estado en un hospital y que se le hayan aplicado dos tratamientos */
-select 
-paciente.id_paciente,
-paciente.nombre_paciente,
-paciente.apellido_paciente,
-paciente.direccion_paciente,
-count(encuentro.id_paciente) as conocidos,
-count(tratamiento_paciente.id_paciente) as tratamientos
+select paciente.id_paciente as ID, paciente.nombre_paciente as nombre, paciente.apellido_paciente as apellido
 from paciente
-inner join encuentro on paciente.id_paciente = encuentro.id_paciente
-inner join conocido on encuentro.id_conocido = conocido.id_conocido and (conocido.nombre_conocido = paciente.nombre_paciente and conocido.apellido_conocido = apellido_paciente) 
-inner join tratamiento_paciente on paciente.id_paciente = tratamiento_paciente.id_paciente 
-group by paciente.id_paciente
-having conocidos < 2
+inner join registro_hospital on registro_hospital.id_paciente = paciente.id_paciente
+inner join(
+	select  encuentro.id_paciente, count(encuentro.id_paciente) as asociados
+	from encuentro
+	group by encuentro.id_paciente
+) as conteo_asociados on conteo_asociados.id_paciente = paciente.id_paciente
+inner join(
+	select tratamiento_paciente.id_paciente, count(tratamiento_paciente.id_paciente) as tratamientos
+	from tratamiento_paciente
+	group by tratamiento_paciente.id_paciente
+) as conteo_tratamientos on conteo_tratamientos.id_paciente = paciente.id_paciente
+where conteo_asociados.asociados < 2 and conteo_tratamientos.tratamientos = 2    
 
 
 
